@@ -1,10 +1,7 @@
-import javax.sound.sampled.AudioInputStream;
 
 
 public class AudioManager {
-	
-	AudioInputStream audioInput;
-	
+		
 	public AudioManager() {
 		
 		
@@ -36,7 +33,6 @@ public class AudioManager {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -1,4 +1,3 @@
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -18,6 +17,8 @@ public class Capture implements Runnable {
 	AudioInputStream audioInput;
 	AudioFormat audioFormat;
 	
+	private boolean captureAudio = false;
+	
 	
 	public Capture() {
 				
@@ -30,13 +31,16 @@ public class Capture implements Runnable {
 		thread = new Thread(this);
 		thread.setName("Capture");
 		thread.start();
+		
+		captureAudio = true;
 	}
 	
 	/**
 	 * Stops the thread.
 	 */
 	public void stop() {
-		thread = null;
+		captureAudio = false;
+		//thread = null;
 	}
 	
 	/**
@@ -51,10 +55,7 @@ public class Capture implements Runnable {
 	}
 	
 	public void run() {
-		
-		double duration = 0.0;
-		audioInput = null;
-		
+				
 		// Make sure a compatible line is supported for the audio input
 		
 		AudioFormat format = getAudioFormat();
@@ -84,26 +85,17 @@ public class Capture implements Runnable {
 		// Set up variables for the audio
 		
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		int frameSizeInBytes = format.getFrameSize();
-		int bufferLengthInFrames = line.getBufferSize() / 8;
-		int bufferLengthInBytes = bufferLengthInFrames * frameSizeInBytes;
-		byte[] audioData = new byte[bufferLengthInBytes];
+		byte[] audioData = new byte[line.getBufferSize() / 5];
 		int bytesRead; // Number of bytes read
 		
 		line.start();
 		
-		while(thread != null) {
-			if((bytesRead = line.read(audioData, 0, bufferLengthInBytes)) == -1) {
-				break;
-			}
+		while(captureAudio) {
+			// Update the number of bytes read
+			bytesRead = line.read(audioData, 0, audioData.length);
+			// Write the audioData to the output stream
 			output.write(audioData, 0, bytesRead);
 		}
-		
-		System.out.print("D: ");
-		for(int p = 0; p < audioData.length; p++) {
-			System.out.print(audioData[p] + " ");
-		}
-		System.out.println("\n");
 		
 		// Stop and close the line
 		
@@ -120,20 +112,11 @@ public class Capture implements Runnable {
 			io.printStackTrace();
 		}
 		
-		// Load bytes into the audio input stream
+		// Print the bytes recorded
 		
 		byte audioBytes[] = output.toByteArray();
-		ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes);
-		audioInput = new AudioInputStream(bais, format, audioBytes.length / frameSizeInBytes);
-		
-		long milliseconds = (long)((audioInput.getFrameLength() * 1000) / format.getFrameRate());
-		duration = milliseconds / 1000.0;
-		
-		try {
-			audioInput.reset();
-		} catch(Exception ex) {
-			ex.printStackTrace();
-			return;
+		for(int p = 0; p < audioBytes.length; p++) {
+			System.out.println("[" + p + "]: " + audioBytes[p]);
 		}
 		
 		
@@ -172,7 +155,6 @@ public class Capture implements Runnable {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

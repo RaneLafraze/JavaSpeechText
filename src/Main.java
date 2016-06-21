@@ -1,4 +1,6 @@
 
+
+
 public class Main {
 	
 	static GlobalVariables globalVars = new GlobalVariables();
@@ -9,4 +11,5 @@ public class Main {
 		audioManager.captureAudio(2000);
 		
 	}
+	
 }
