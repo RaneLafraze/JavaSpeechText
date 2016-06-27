@@ -1,5 +1,6 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -116,9 +117,10 @@ public class Capture implements Runnable {
 		
 		byte audioBytes[] = output.toByteArray();
 		for(int p = 0; p < audioBytes.length; p++) {
-			System.out.println("[" + p + "]: " + audioBytes[p]);
+			if((audioBytes[p] != -1) && (audioBytes[p] != 0) && (audioBytes[p] != 1)) {
+				System.out.print(audioBytes[p] + ", ");
+			}
 		}
-		
 		
 	}
 	
